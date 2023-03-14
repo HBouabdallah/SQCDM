@@ -9,6 +9,7 @@ using IndustryIncident.Models;
 using IndustryIncident.Models.ViewModels;
 using System.Data.Entity.Validation;
 using System.Security.Policy;
+using Serilog;
 
 namespace IndustryIncident.Controllers
 {
@@ -16,16 +17,20 @@ namespace IndustryIncident.Controllers
     {
         private readonly IndustryIncidentContext _context;
 
-        public IncidentsController(IndustryIncidentContext context)
+        public Serilog.ILogger _logger { get; }
+
+        public IncidentsController(IndustryIncidentContext context, Serilog.ILogger logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: Incidents
         public async Task<IActionResult> Index()
         {
+            try { 
             var currentUser = _context.Users.FirstOrDefault(x => x.Id == this.User.Identity.Name);
-            if(currentUser == null)
+            if (currentUser == null)
             {
                 return RedirectToAction("index", "notfound");
 
@@ -56,6 +61,12 @@ namespace IndustryIncident.Controllers
                 }
             }
             return View(listViewModel);
+            }catch(Exception ex)
+            {
+                _logger.Error(ex.Message);
+                return RedirectToAction("index", "notfound");
+
+            }
         }
 
         // GET: Incidents/Details/5

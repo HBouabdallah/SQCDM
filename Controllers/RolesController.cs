@@ -138,24 +138,18 @@ namespace IndustryIncident.Controllers
         // GET: Roles/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (!this.User.IsInRole("Admin"))
+            if (_context.Roles == null)
             {
-                return RedirectToAction("index", "notfound");
-
+                return Problem("Entity set 'IndustryIncidentContext.Roles'  is null.");
             }
-            if (id == null || _context.Roles == null)
+            var role = await _context.Roles.FindAsync(id);
+            if (role != null)
             {
-                return NotFound();
-            }
-
-            var role = await _context.Roles
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (role == null)
-            {
-                return NotFound();
+                _context.Roles.Remove(role);
             }
 
-            return View(role);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         // POST: Roles/Delete/5

@@ -138,24 +138,18 @@ namespace IndustryIncident.Controllers
         // GET: Indicators/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (!this.User.IsInRole("Admin"))
+            if (_context.Indicators == null)
             {
-                return RedirectToAction("index", "notfound");
-
+                return Problem("Entity set 'IndustryIncidentContext.Indicators'  is null.");
             }
-            if (id == null || _context.Indicators == null)
+            var indicator = await _context.Indicators.FindAsync(id);
+            if (indicator != null)
             {
-                return NotFound();
-            }
-
-            var indicator = await _context.Indicators
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (indicator == null)
-            {
-                return NotFound();
+                _context.Indicators.Remove(indicator);
             }
 
-            return View(indicator);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         // POST: Indicators/Delete/5

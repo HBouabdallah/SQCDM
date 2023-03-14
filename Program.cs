@@ -1,18 +1,29 @@
+using IndustryIncident;
 using IndustryIncident.Helpers;
 using IndustryIncident.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
+using Serilog.Formatting.Compact;
 
 internal class Program
 {
     private static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        var settings = Settings.GetSettings(builder.Configuration);
+        Log.Logger = new LoggerConfiguration()
+               .Enrich.FromLogContext()
+               .WriteTo.Console(new RenderedCompactJsonFormatter())
+               .WriteTo.File(settings.logPath, rollingInterval: RollingInterval.Day)
+               .CreateLogger();
+        builder.Services.AddSingleton(Log.Logger);
 
+        builder.Services.AddSingleton(settings);
         // Add services to the container.
         builder.Services.AddControllersWithViews();
-        builder.Services.AddDbContext<IndustryIncidentContext>(options => options.UseSqlServer("Data Source=LAPTOP-RMHSDIOF;Initial Catalog=Industry_Incident;persist security info=True;Trust Server Certificate=true;User ID=TestLogin;Password=TestLogin"));
+        builder.Services.AddDbContext<IndustryIncidentContext>(options => options.UseSqlServer(settings.connectionString));
         builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
            .AddNegotiate();
         builder.Services.AddHttpContextAccessor();

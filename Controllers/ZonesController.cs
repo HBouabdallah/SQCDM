@@ -138,24 +138,18 @@ namespace IndustryIncident.Controllers
         // GET: Zones/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (!this.User.IsInRole("Admin"))
+            if (_context.Zones == null)
             {
-                return RedirectToAction("index", "notfound");
-
+                return Problem("Entity set 'IndustryIncidentContext.Zones'  is null.");
             }
-            if (id == null || _context.Zones == null)
+            var zone = await _context.Zones.FindAsync(id);
+            if (zone != null)
             {
-                return NotFound();
-            }
-
-            var zone = await _context.Zones
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (zone == null)
-            {
-                return NotFound();
+                _context.Zones.Remove(zone);
             }
 
-            return View(zone);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         // POST: Zones/Delete/5

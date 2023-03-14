@@ -143,24 +143,18 @@ namespace IndustryIncident.Controllers
         // GET: IncidentTypes/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (!this.User.IsInRole("Admin"))
+            if (_context.IncidentTypes == null)
             {
-                return RedirectToAction("index", "notfound");
-
+                return Problem("Entity set 'IndustryIncidentContext.IncidentTypes'  is null.");
             }
-            if (id == null || _context.IncidentTypes == null)
+            var incidentType = await _context.IncidentTypes.FindAsync(id);
+            if (incidentType != null)
             {
-                return NotFound();
-            }
-
-            var incidentType = await _context.IncidentTypes
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (incidentType == null)
-            {
-                return NotFound();
+                _context.IncidentTypes.Remove(incidentType);
             }
 
-            return View(incidentType);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         // POST: IncidentTypes/Delete/5

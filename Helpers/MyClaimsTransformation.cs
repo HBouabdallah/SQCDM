@@ -31,7 +31,7 @@ namespace IndustryIncident.Helpers
                            select r;
                 if (role.Count()>0)
                 {
-                    claimsIdentity.AddClaim(new Claim(ClaimTypes.Role, role.FirstOrDefault().Role1));
+                    claimsIdentity.AddClaim(new Claim(ClaimTypes.Role, role?.FirstOrDefault().Role1));
                 }
             }
 

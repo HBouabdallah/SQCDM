@@ -8,9 +8,12 @@ using Microsoft.EntityFrameworkCore;
 using IndustryIncident.Models;
 using IndustryIncident.Models.ViewModels;
 using System.Data.Entity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IndustryIncident.Controllers
 {
+    [Authorize]
+
     public class UsersController : Controller
     {
         private readonly IndustryIncidentContext _context;

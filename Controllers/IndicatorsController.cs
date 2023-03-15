@@ -6,9 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using IndustryIncident.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IndustryIncident.Controllers
 {
+    [Authorize]
+
     public class IndicatorsController : Controller
     {
         private readonly IndustryIncidentContext _context;

@@ -10,9 +10,11 @@ using IndustryIncident.Models.ViewModels;
 using System.Data.Entity.Validation;
 using System.Security.Policy;
 using Serilog;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IndustryIncident.Controllers
 {
+    [Authorize]
     public class IncidentsController : Controller
     {
         private readonly IndustryIncidentContext _context;
@@ -28,40 +30,56 @@ namespace IndustryIncident.Controllers
         // GET: Incidents
         public async Task<IActionResult> Index()
         {
-            try { 
-            var currentUser = _context.Users.FirstOrDefault(x => x.Id == this.User.Identity.Name);
-            if (currentUser == null)
+            try
             {
-                return RedirectToAction("index", "notfound");
-
-            }
-            var userzone = _context.UserAcces.FirstOrDefault(x => x.Iduser == this.User.Identity.Name);
-
-            var industryIncidentContext = _context.Incidents;
-            var listIncid = await industryIncidentContext.ToListAsync();
-            var listViewModel = new List<IncidentViewModel>();
-            foreach (var incid in listIncid)
-            {
-                var zone = _context.Zones.FirstOrDefault(x => x.Id == incid.Zone);
-                var type = _context.IncidentTypes.FirstOrDefault(x => x.Id == incid.Type);
-                var indicator = _context.Indicators.FirstOrDefault(x => x.Id == incid.Indicator);
-                if (incid.Zone == userzone.Idzone)
+                var currentUser = _context.Users.FirstOrDefault(x => x.Id == this.User.Identity.Name);
+                if (currentUser == null)
                 {
-                    listViewModel.Add(new IncidentViewModel()
-                    {
-                        Zone = zone,
-                        Indicator = indicator,
-                        Type = type,
-                        Iduser = incid.Iduser,
-                        Date = incid.Date,
-                        Description = incid.Description,
-                        Id = incid.Id
+                    return RedirectToAction("index", "notfound");
 
-                    });
                 }
+                var userzone = _context.UserAcces.FirstOrDefault(x => x.Iduser == this.User.Identity.Name);
+
+                var industryIncidentContext = _context.Incidents;
+                var listIncid = await industryIncidentContext.ToListAsync();
+                var listViewModel = new List<IncidentViewModel>();
+                foreach (var incid in listIncid)
+                {
+                    var zone = _context.Zones.FirstOrDefault(x => x.Id == incid.Zone);
+                    var type = _context.IncidentTypes.FirstOrDefault(x => x.Id == incid.Type);
+                    var indicator = _context.Indicators.FirstOrDefault(x => x.Id == incid.Indicator);
+                    if (this.User.IsInRole("Admin"))
+                    {
+                        listViewModel.Add(new IncidentViewModel()
+                        {
+                            Zone = zone,
+                            Indicator = indicator,
+                            Type = type,
+                            Iduser = incid.Iduser,
+                            Date = incid.Date,
+                            Description = incid.Description,
+                            Id = incid.Id
+
+                        });
+                    }
+                    else if (incid.Zone == userzone.Idzone)
+                    {
+                        listViewModel.Add(new IncidentViewModel()
+                        {
+                            Zone = zone,
+                            Indicator = indicator,
+                            Type = type,
+                            Iduser = incid.Iduser,
+                            Date = incid.Date,
+                            Description = incid.Description,
+                            Id = incid.Id
+
+                        });
+                    }
+                }
+                return View(listViewModel);
             }
-            return View(listViewModel);
-            }catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.Error(ex.Message);
                 return RedirectToAction("index", "notfound");
@@ -120,9 +138,18 @@ namespace IndustryIncident.Controllers
 
             }
             var userzone = _context.UserAcces.FirstOrDefault(x => x.Iduser == this.User.Identity.Name);
-            ViewData["Indicator"] = new SelectList(_context.Indicators, "Id", "Name");
+            var listZone = new List<Models.Zone>();
+            if (this.User.IsInRole("Admin"))
+            {
+                listZone = _context.Zones.ToList();
+            }
+            else
+            {
+                listZone = _context.Zones.Where(x => x.Id == userzone.Idzone).ToList();
+            }
+                ViewData["Indicator"] = new SelectList(_context.Indicators, "Id", "Name");
             ViewData["Type"] = new SelectList(_context.IncidentTypes, "Id", "Type");
-            ViewData["Zone"] = new SelectList(_context.Zones.Where(x => x.Id == userzone.Idzone), "Id", "Name");
+            ViewData["Zone"] = new SelectList(listZone, "Id", "Name");
             return View();
         }
 
@@ -168,9 +195,19 @@ namespace IndustryIncident.Controllers
             }
             incident.Iduser = this.User.Identity.Name;
             var userzone = _context.UserAcces.FirstOrDefault(x => x.Iduser == incident.Iduser);
+            var listZone = new List<Models.Zone>();
+
+            if (this.User.IsInRole("Admin"))
+            {
+                listZone = _context.Zones.ToList();
+            }
+            else
+            {
+                listZone = _context.Zones.Where(x => x.Id == userzone.Idzone).ToList();
+            }
             ViewData["Indicator"] = new SelectList(_context.Indicators, "Id", "Name", incident.Indicator);
             ViewData["Type"] = new SelectList(_context.IncidentTypes, "Id", "Type", incident.Type);
-            ViewData["Zone"] = new SelectList(_context.Zones.Where(x => x.Id == userzone.Idzone), "Id", "Name", incident.Zone);
+            ViewData["Zone"] = new SelectList(listZone, "Id", "Name", incident.Zone);
             return View(incident);
         }
 

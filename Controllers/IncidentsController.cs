@@ -38,6 +38,7 @@ namespace IndustryIncident.Controllers
                     return RedirectToAction("index", "notfound");
 
                 }
+                
                 var userzone = _context.UserAcces.FirstOrDefault(x => x.Iduser == this.User.Identity.Name);
 
                 var industryIncidentContext = _context.Incidents;
@@ -58,11 +59,13 @@ namespace IndustryIncident.Controllers
                             Iduser = incid.Iduser,
                             Date = incid.Date,
                             Description = incid.Description,
+                            Objectif = incid.Objectif,
+                            Taux = incid.Taux,
                             Id = incid.Id
 
                         });
                     }
-                    else if (incid.Zone == userzone.Idzone)
+                    else if (incid.Zone == userzone.Idzone && incid.Iduser == this.User.Identity.Name)
                     {
                         listViewModel.Add(new IncidentViewModel()
                         {
@@ -72,6 +75,8 @@ namespace IndustryIncident.Controllers
                             Iduser = incid.Iduser,
                             Date = incid.Date,
                             Description = incid.Description,
+                            Objectif= incid.Objectif,
+                            Taux = incid.Taux,
                             Id = incid.Id
 
                         });
@@ -121,6 +126,8 @@ namespace IndustryIncident.Controllers
                 Iduser = incident.Iduser,
                 Date = incident.Date,
                 Description = incident.Description,
+                Objectif = incident.Objectif,
+                Taux = incident.Taux,
                 Id = incident.Id
             };
 
@@ -158,7 +165,7 @@ namespace IndustryIncident.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Iduser,Type,Description,Zone,Date,Indicator")] Incident incident)
+        public async Task<IActionResult> Create([Bind("Id,Iduser,Type,Description,Objectif,Taux,Zone,Date,Indicator")] Incident incident)
         {
             if (ModelState.IsValid)
             {
@@ -216,8 +223,9 @@ namespace IndustryIncident.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Iduser,Type,Description,Zone,Date,Indicator")] Incident incident)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Iduser,Type,Description,Objectif,Taux,Zone,Date,Indicator")] Incident incident)
         {
+
             if (id != incident.Id)
             {
                 return NotFound();

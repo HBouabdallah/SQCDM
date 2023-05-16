@@ -16,6 +16,10 @@
 
 		public Indicator Indicator { get; set; }
 
+        public decimal? Objectif { get; set; }
 
-	}
+        public decimal? Taux { get; set; }
+
+
+    }
 }

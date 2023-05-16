@@ -42,6 +42,8 @@ public partial class IndustryIncidentContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("ID");
             entity.Property(e => e.Date).HasColumnType("datetime");
+            entity.Property(e => e.Objectif).HasColumnType("Objectif");
+            entity.Property(e => e.Taux).HasColumnType("Taux");
             entity.Property(e => e.Iduser)
                 .HasMaxLength(250)
                 .HasColumnName("IDUser");

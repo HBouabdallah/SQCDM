@@ -32,10 +32,21 @@
             <input asp-for="Date" class="form-control" />
             <span asp-validation-for="Date" class="text-danger"></span>
         </div>
+        <div class="col-12">
+            <label asp-for="Objectif" class="control-label"></label>
+            <input asp-for="Objectif" class="form-control" />
+            <span asp-validation-for="Objectif" class="text-danger"></span>
+        </div>
+                <div class="col-12">
+            <label asp-for="Taux" class="control-label"></label>
+            <input asp-for="Taux" class="form-control" />
+            <span asp-validation-for="Taux" class="text-danger"></span>
+
+        </div>
+
         <div class="col-md-12">
             <label asp-for="Description" class="control-label"></label>
             <input asp-for="Description" class="form-control" />
-            <span asp-validation-for="Description" class="text-danger"></span>
         </div>
         <div class="col-12" style="text-align: center;">
             <button type="submit" class="btn btn-primary">Create</button>

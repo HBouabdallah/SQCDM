@@ -18,4 +18,7 @@ public partial class Incident
     public DateTime Date { get; set; }
 
     public int Indicator { get; set; }
+    public decimal? Objectif { get; set; }
+
+    public decimal? Taux { get; set; }
 }
